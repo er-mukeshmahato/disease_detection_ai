@@ -4,13 +4,13 @@ services:
     name: disease-detection-api
     env: python
     plan: free
-    buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port 10000"
+    buildCommand: "pip install -r Backend/requirements.txt"
+    startCommand: "uvicorn Backend.main:app --host 0.0.0.0 --port 10000"
 
-  # ----- Frontend (React) -----
+  # ----- Frontend (React Vite) -----
   - type: web
-    name: disease-detection-frontend
+    name: bank-frontend
     env: node
     plan: free
-    buildCommand: "cd frontend && npm install && npm run build"
-    startCommand: "npx serve -s frontend/build -l 3000"
+    buildCommand: "cd bank-frontend && npm install && npm run build"
+    startCommand: "npx serve -s bank-frontend/dist -l 3000"
