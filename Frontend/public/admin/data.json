@@ -1,0 +1,22 @@
+{
+    "users": [
+      { "id": 1, "name": "John Doe", "email": "john.doe@example.com", "password": "password123" },
+      { "id": 2, "name": "Jane Smith", "email": "jane.smith@example.com", "password": "password456" },
+      { "id": 3, "name": "Alice Johnson", "email": "alice.johnson@example.com", "password": "password789" },
+      { "id": 4, "name": "Bob Brown", "email": "bob.brown@example.com", "password": "password012" },
+      { "id": 5, "name": "Charlie Davis", "email": "charlie.davis@example.com", "password": "password345" }
+    ],
+    "accounts": [
+      { "userId": 1, "accountNumber": "1001", "accountType": "Checking", "balance": 1200.50 },
+      { "userId": 2, "accountNumber": "1002", "accountType": "Savings", "balance": 2500.75 },
+      { "userId": 3, "accountNumber": "1003", "accountType": "Checking", "balance": 950.00 },
+      { "userId": 4, "accountNumber": "1004", "accountType": "Business", "balance": 5000.30 },
+      { "userId": 5, "accountNumber": "1005", "accountType": "Savings", "balance": 320.10 }
+    ],
+    "transactions": [
+      { "id": 1, "userId": 1, "transactionType": "Deposit", "amount": 500.00, "date": "2025-01-25" },
+      { "id": 2, "userId": 2, "transactionType": "Withdrawal", "amount": 100.00, "date": "2025-01-22" },
+      { "id": 3, "userId": 3, "transactionType": "Deposit", "amount": 300.00, "date": "2025-01-20" }
+    ]
+  }
+  
