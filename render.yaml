@@ -12,10 +12,3 @@ services:
     envVars:
       - key: PORT
         value: 10000
-
-  - type: web
-    name: disease-frontend
-    env: node
-    rootDir: Frontend
-    buildCommand: npm install && npm run build
-    startCommand: npx serve -s dist -l 3000
