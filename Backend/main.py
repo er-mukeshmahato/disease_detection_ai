@@ -15,3 +15,35 @@ app.add_middleware(
 
 # Include all routers
 app.include_router(api_router)
+
+
+# Root endpoint: shows message and available routes
+@app.get("/")
+def root():
+    endpoints = {
+        "message": "API is running!",
+        "available_endpoints": {
+            "Auth": {
+                "register": "/auth/register",
+                "login": "/auth/login",
+                "logout": "/auth/logout",
+                "forgot_password": "/auth/forgot-password"
+            },
+            "Prediction": {
+                "upload_image": "/predict/upload/",
+                "prediction_health": "/predict/ok"
+            },
+            "Information": {
+                "precautions": "/info/precautions/{disease_name}",
+                "symptoms": "/info/symptoms/{disease_name}",
+                "download_report": "/info/download_report/{disease_name}"
+            },
+            "Backend_health": "/ok"
+        }
+    }
+    return endpoints
+
+# Overall backend health check
+@app.get("/ok")
+def health_check():
+    return {"status": "ok"}

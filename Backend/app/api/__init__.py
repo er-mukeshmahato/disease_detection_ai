@@ -9,3 +9,4 @@ api_router.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 
 # Prediction routes
 api_router.include_router(predict_api.router, prefix="/predict", tags=["Prediction"])
+
