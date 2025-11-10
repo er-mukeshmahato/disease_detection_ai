@@ -1,1 +1,2 @@
 *.h5 filter=lfs diff=lfs merge=lfs -text
+Backend/app/ml/chest_disease_model.h5 filter=lfs diff=lfs merge=lfs -text
