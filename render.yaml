@@ -1,9 +1,8 @@
-
- services:
+services:
   - type: web
     name: disease-backend
     env: python
-    rootDir: .
+    rootDir: Backend
     buildCommand: |
       apt-get update && apt-get install -y git git-lfs
       git lfs install
@@ -17,15 +16,6 @@
   - type: web
     name: disease-frontend
     env: node
-    rootDir: .
-    buildCommand: cd Frontend && npm install && npm run build
-    startCommand: npx serve -s Frontend/dist -l 3000
-
-
-  # ----- Frontend (React Vite) -----
-  - type: web
-    name: bank-frontend
-    env: node
-    plan: free
-    buildCommand: "cd Frontend && npm install && npm run build"
-    startCommand: "npx serve -s bank-frontend/dist -l 3000"
+    rootDir: Frontend
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s dist -l 3000
