@@ -1,11 +1,16 @@
 from fastapi import APIRouter, UploadFile, File
 from app.ml.model_loader import load_model
 from app.ml.predict import predict_disease
+import os
+from tensorflow.keras.models import load_model
+
+# Get the absolute path to the current file's directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 router = APIRouter()
 
 # Path to your trained model
-MODEL_PATH = "C:/project/disease_detection_ai/Backend/app/ml/chest_disease_model.h5"
+MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "chest_disease_model.h5")
 CLASS_NAMES = ['Covid', 'Normal', 'Pneumonia', 'Pneumothorax', 'Tuberculosis']
 
 # Load the model once at startup
