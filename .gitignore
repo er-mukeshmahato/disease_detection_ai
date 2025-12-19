@@ -15,14 +15,13 @@ pip-wheel-metadata/
 venv/
 ENV/
 env/
-backend/venv/
+Backend/venv/
 Backend/.venv/
 *.sqlite3
 *.log
 disease_dataset/
 
 # ---- ML / TensorFlow / Keras Models ----
-Backend/app/ml/chest_disease_model.h5
 Backend/app/ml/*.h5
 Backend/app/ml/*.keras
 /models/
@@ -33,11 +32,11 @@ Backend/app/ml/*.keras
 *.weights
 
 # ---- FastAPI / Backend ----
-backend/__pycache__/
-backend/*.db
-backend/.env
-backend/tmp/
-backend/.DS_Store
+Backend/__pycache__/
+Backend/*.db
+Backend/.env
+Backend/tmp/
+Backend/.DS_Store
 
 # ---- Jupyter / Notebooks ----
 .ipynb_checkpoints/
