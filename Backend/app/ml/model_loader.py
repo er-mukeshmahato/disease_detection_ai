@@ -1,31 +1,67 @@
 import os
+import tensorflow as tf
+import hashlib
 import gdown
-from tensorflow.keras.models import load_model as keras_load_model
+from dotenv import load_dotenv
+from filelock import FileLock
 
-def load_model():
-    """
-    Loads the trained chest disease detection model.
-    If it's not found locally, it will be downloaded from Google Drive.
-    """
+# --------------------------------------------------
+# Load environment variables
+# --------------------------------------------------
+load_dotenv()
 
-    # ✅ Your Google Drive shareable link
-    DRIVE_URL = "https://drive.google.com/uc?id=129E9m8ZRFObII6l2DfrLiMNLlYw7Ltig"
+# --------------------------------------------------
+# Model fingerprint (safe)
+# --------------------------------------------------
+def model_fingerprint(model):
+    w = model.weights[0].numpy()
+    return hashlib.md5(w.tobytes()).hexdigest()
 
-    # ✅ Model will be saved inside the same folder as this file
+# --------------------------------------------------
+# Drive-ONLY Production Model Loader
+# --------------------------------------------------
+def model_load():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    MODEL_PATH = os.path.join(BASE_DIR, "chest_disease_model.h5")
+    MODEL_PATH = os.path.join(BASE_DIR, "VGG16_drive.keras")
+    LOCK_PATH = MODEL_PATH + ".lock"
 
-    # ✅ Download the model only if it doesn’t exist
-    if not os.path.exists(MODEL_PATH):
-        print("🔽 Downloading model from Google Drive...")
-        gdown.download(DRIVE_URL, MODEL_PATH, quiet=False)
-        print("✅ Model downloaded successfully.")
-    else:
-        print("⚡ Model already exists locally — using cached version.")
+    DRIVE_URL = os.getenv("DRIVE_URL")
+    if not DRIVE_URL:
+        raise EnvironmentError("❌ DRIVE_URL not found in .env")
 
-    # ✅ Load the model
+    print("⬇️ Loading model from Google Drive (source of truth)")
+
+    # 🔒 Prevent parallel downloads
+    with FileLock(LOCK_PATH):
+
+        # ❗ Always refresh from Drive
+        if os.path.exists(MODEL_PATH):
+            os.remove(MODEL_PATH)
+
+        gdown.download(
+            DRIVE_URL,
+            MODEL_PATH,
+            quiet=False,
+            fuzzy=True
+        )
+
+        if not os.path.isfile(MODEL_PATH):
+            raise RuntimeError("❌ Model download failed")
+
     print("🧠 Loading TensorFlow model...")
-    model = keras_load_model(MODEL_PATH)
-    print("✅ Model loaded and ready to use.")
+
+    model = tf.keras.models.load_model(
+        MODEL_PATH,
+        compile=False
+    )
+
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+
+    print("✅ Model loaded from Drive")
+    print("🔐 API model fingerprint:", model_fingerprint(model))
 
     return model

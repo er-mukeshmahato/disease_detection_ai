@@ -1,4 +1,21 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python.defaultInterpreterPath": "C:/project/disease_detection_ai/backend/venv/Scripts/python.exe",
+    "python.pythonPath": "C:/project/disease_detection_ai/backend/venv/Scripts/python.exe",
+
+    // Pylance must use your project folders
+    "python.analysis.extraPaths": [
+       "C:/project/disease_detection_ai/backend/venv/Lib/site-packages"
+    ],
+
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.useLibraryCodeForTypes": true,
+
+    // Fix import resolution problems
+    "python.analysis.indexing": true,
+
+    // Recommended FastAPI settings
+    "editor.formatOnSave": true,
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "python-envs.defaultPackageManager": "ms-python.python:pip",
     "python-envs.pythonProjects": []
 }

@@ -1,8 +1,10 @@
 import React, { useState, useRef } from "react";
+import { API_ROUTES } from "../config/api";
 
 type PredictionResult = {
-  class_name: string;
-  confidence?: number;
+  id: string;
+  predicted_label: string;
+  confidence: number; // already in %
 };
 
 const UploadSection = () => {
@@ -11,139 +13,220 @@ const UploadSection = () => {
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [userInfo, setUserInfo] = useState({ name: "", email: "" });
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle file selection
+  // ---------------- FILE SELECT ----------------
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
-    if (selected) {
-      setFile(selected);
-      setPreview(URL.createObjectURL(selected));
-      setResult(null);
-    }
+    if (!selected) return;
+
+    if (preview) URL.revokeObjectURL(preview); // cleanup
+
+    setFile(selected);
+    setPreview(URL.createObjectURL(selected));
+    setResult(null);
   };
 
-  // Upload to API and get prediction
+  // ---------------- UPLOAD & PREDICT ----------------
   const handleUpload = async () => {
-    if (!file) return alert("Please select an image first!");
+    if (!file) return alert("Please select an image");
 
     const formData = new FormData();
     formData.append("file", file);
 
     try {
       setLoading(true);
-      const res = await fetch(
-        "https://disease-detection-api-rutn.onrender.com/predict/upload/",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
 
-      if (!res.ok) throw new Error(`Server Error: ${res.status}`);
-      const data: PredictionResult = await res.json();
-      setResult(data);
+      const res = await fetch(API_ROUTES.UPLOAD, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error("Prediction failed");
+
+      setResult({
+        id: data.id,
+        predicted_label: data.predicted_label,
+        confidence: data.confidence, // already %
+      });
     } catch (err) {
       console.error(err);
-      setResult({ class_name: "Prediction failed. Try again." });
+      alert("Prediction failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // Reset & open file picker for a new prediction
-  const handlePredictAnother = () => {
+  // ---------------- DOWNLOAD REPORT ----------------
+  const handleDownloadReport = async () => {
+    if (!userInfo.name || !userInfo.email)
+      return alert("Please enter name and email");
+
+    if (!result?.id) return alert("Prediction ID missing");
+
+    const formData = new FormData();
+    formData.append("prediction_id", result.id);
+    formData.append("name", userInfo.name);
+    formData.append("email", userInfo.email);
+
+    try {
+      const res = await fetch(API_ROUTES.DOWNLOAD_REPORT, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Report failed");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "xray_report.pdf";
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      setShowReportForm(false);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to download report");
+    }
+  };
+
+  // ---------------- CLEAN RESET ----------------
+  const resetForm = () => {
+    if (preview) URL.revokeObjectURL(preview);
+
     setFile(null);
     setPreview(null);
     setResult(null);
-    setLoading(false);
-    fileInputRef.current?.click(); // Open file picker
+    setShowReportForm(false);
+    setUserInfo({ name: "", email: "" });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+      fileInputRef.current.click(); // auto open picker
+    }
   };
 
   return (
-    <section id="upload" className="py-16 px-6 bg-white text-center">
-      <h2 className="text-3xl font-bold mb-4">Upload Your X-ray</h2>
-      <p className="max-w-2xl mx-auto text-gray-600 mb-6">
-        Upload a chest X-ray image to get an instant AI-based disease prediction.
-      </p>
+    <section className="py-16 px-6 bg-white text-center">
+      <h2 className="text-3xl font-bold mb-4">Upload Chest X-ray</h2>
 
-      {/* Hidden file input */}
       <input
         type="file"
         accept="image/*"
-        onChange={handleFileChange}
         ref={fileInputRef}
+        onChange={handleFileChange}
         className="hidden"
       />
 
-      {/* Show preview & buttons if a file is selected */}
-      {preview && !result && (
-        <div className="mt-6 flex flex-col items-center">
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-72 h-72 object-cover rounded-lg shadow-md"
-          />
-
-          <div className="mt-4 flex gap-3">
-            <button
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition disabled:opacity-50"
-              onClick={handleUpload}
-              disabled={loading}
-            >
-              Upload & Predict
-            </button>
-
-            <button
-              className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition disabled:opacity-50"
-              onClick={handlePredictAnother}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-          </div>
-
-          {loading && (
-            <div className="mt-4 flex items-center gap-3">
-              <div className="w-10 h-10 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
-              <span className="text-blue-700 font-semibold">Predicting...</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Show result */}
-      {result && (
-        <div className="mt-8 flex flex-col items-center">
-          <div className="bg-gray-100 p-4 rounded-lg max-w-md shadow transition-opacity duration-500 opacity-100">
-            <p className="font-semibold text-blue-700 text-lg">
-              Prediction: {result.class_name}
-            </p>
-            {result.confidence !== undefined && (
-              <p className="text-gray-700 mt-1">
-                Confidence: {(result.confidence * 100).toFixed(2)}%
-              </p>
-            )}
-          </div>
-
-          <button
-            className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
-            onClick={handlePredictAnother}
-            disabled={loading}
-          >
-            Predict Another
-          </button>
-        </div>
-      )}
-
-      {/* Show file picker if no preview yet */}
+      {/* SELECT IMAGE */}
       {!preview && !result && (
         <button
-          className="bg-gray-200 px-6 py-2 rounded hover:bg-gray-300 transition"
+          className="bg-gray-200 px-6 py-2 rounded"
           onClick={() => fileInputRef.current?.click()}
         >
           Select Image
         </button>
+      )}
+
+      {/* PREVIEW + UPLOAD */}
+      {preview && !result && (
+        <div className="mt-6 flex flex-col items-center">
+          <img
+            src={preview}
+            alt="preview"
+            className="w-72 h-72 object-cover rounded shadow"
+          />
+
+          <button
+            onClick={handleUpload}
+            disabled={loading}
+            className="mt-4 bg-blue-600 text-white px-6 py-2 rounded"
+          >
+            Upload & Predict
+          </button>
+
+          {loading && <p className="mt-3 text-blue-600">Processing...</p>}
+        </div>
+      )}
+
+      {/* RESULT */}
+      {result && (
+        <div className="mt-8 flex flex-col items-center">
+          <div className="bg-gray-100 p-4 rounded shadow max-w-md">
+            <p className="text-lg font-bold text-blue-700">
+              Prediction: {result.predicted_label}
+            </p>
+            <p className="text-gray-700">
+              Confidence: {result.confidence.toFixed(2)}%
+            </p>
+          </div>
+
+          <div className="mt-6 flex gap-4">
+            <button
+              className="bg-green-600 text-white px-6 py-2 rounded"
+              onClick={() => setShowReportForm(true)}
+            >
+              Download Report
+            </button>
+
+            <button
+              className="bg-gray-400 text-white px-6 py-2 rounded"
+              onClick={resetForm}
+            >
+              Predict Another
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* REPORT FORM */}
+      {showReportForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded w-80">
+            <h3 className="font-bold mb-4">Enter Details</h3>
+
+            <input
+              type="text"
+              placeholder="Name"
+              className="w-full border px-3 py-2 rounded mb-3"
+              value={userInfo.name}
+              onChange={(e) =>
+                setUserInfo({ ...userInfo, name: e.target.value })
+              }
+            />
+
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full border px-3 py-2 rounded mb-3"
+              value={userInfo.email}
+              onChange={(e) =>
+                setUserInfo({ ...userInfo, email: e.target.value })
+              }
+            />
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="bg-gray-300 px-4 py-2 rounded"
+                onClick={() => setShowReportForm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-green-600 text-white px-4 py-2 rounded"
+                onClick={handleDownloadReport}
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );
