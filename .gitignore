@@ -1,0 +1,67 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+.env
+.env.production
+.venv/
+venv/
+ENV/
+env/
+backend/venv/
+Backend/.venv/
+*.sqlite3
+*.log
+disease_dataset/
+
+# ---- ML / TensorFlow / Keras Models ----
+Backend/app/ml/chest_disease_model.h5
+Backend/app/ml/*.h5
+Backend/app/ml/*.keras
+/models/
+*.hdf5
+*.ckpt
+*.pb
+*.tflite
+*.weights
+
+# ---- FastAPI / Backend ----
+backend/__pycache__/
+backend/*.db
+backend/.env
+backend/tmp/
+backend/.DS_Store
+
+# ---- Jupyter / Notebooks ----
+.ipynb_checkpoints/
+
+# ---- IDE / Editor ----
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Node / React Frontend ----
+disease-detection-ui/node_modules/
+disease-detection-ui/.next/
+disease-detection-ui/.cache/
+disease-detection-ui/build/
+disease-detection-ui/dist/
+disease-detection-ui/.env
+
+# ---- Temporary / Data ----
+data/
+*.csv
+*.tmp
+*.bak
