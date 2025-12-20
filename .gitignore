@@ -32,11 +32,29 @@ Backend/app/ml/*.keras
 *.weights
 
 # ---- FastAPI / Backend ----
-Backend/__pycache__/
+# Ignore all Python bytecode recursively
+**/__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+Backend/venv/
+
+# Database files
 Backend/*.db
-Backend/.env
+
+# Temporary files
 Backend/tmp/
+
+# Environment variables
+Backend/.env
+
+# MacOS system files
 Backend/.DS_Store
+
+# Ignore all __pycache__ folders
+**/__pycache__/
+**/*.py[cod]
 
 # ---- Jupyter / Notebooks ----
 .ipynb_checkpoints/
