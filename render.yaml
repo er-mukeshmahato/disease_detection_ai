@@ -2,12 +2,23 @@ services:
   - type: web
     name: disease-backend
     env: python
+    pythonVersion: 3.10.10
     rootDir: Backend
     buildCommand: |
-      apt-get update && apt-get install -y git git-lfs
-      git lfs install
-      git lfs pull
-      pip install -r requirements.txt
+      # Update system and install essentials
+      apt-get update && apt-get install -y git git-lfs build-essential
+
+      # Upgrade pip, setuptools, wheel
+      python -m pip install --upgrade pip setuptools wheel
+
+      # Pre-install critical packages to avoid build issues
+      pip install numpy==1.26.4
+      pip install tensorflow==2.15.0
+      pip install keras==2.15.0
+
+      # Install the rest of your requirements
+      pip install --no-cache-dir -r requirements.txt
+
     startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
     envVars:
       - key: PORT

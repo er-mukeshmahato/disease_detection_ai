@@ -55,6 +55,13 @@ Backend/.DS_Store
 # Ignore all __pycache__ folders
 **/__pycache__/
 **/*.py[cod]
+Backend/app/__pycache__/
+Backend/ml/__pycache__/
+Backend/routes/__pycache__/
+Backend/api/__pycache__/
+Backend/db/__pycache__/
+Backend/auth/__pycache__/
+Backend/__pycache__/
 
 # ---- Jupyter / Notebooks ----
 .ipynb_checkpoints/
