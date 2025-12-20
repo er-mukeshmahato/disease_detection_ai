@@ -2,7 +2,6 @@ services:
   - type: web
     name: disease-backend
     env: python
-    pythonVersion: 3.10.10
     rootDir: Backend
 
     buildCommand: |
